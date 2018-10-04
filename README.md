@@ -6,8 +6,8 @@ survival-sacrifice model.
 We give an Rcpp script for computing the real MLE for the two
 distribution functions in the so-called survival-sacrifice model.
 
-The method is described in the manuscript: Piet Groeneboom, Antonio E.
-Gomes, and Jon A. Wellner. Nonparametric estimation of the lifetime and
+The method is described in the manuscript:  Antonio E. Gomes, Piet Groeneboom
+and Jon A. Wellner. Nonparametric estimation of the lifetime and
 disease onset distributions for a survival-sacrifice model:
 https://www.stat.washington.edu/jaw/RESEARCH/PAPERS/survsacr.pdf, 2001.
 
@@ -21,7 +21,7 @@ the present model because of the very large number of "candidate" points
 of mass it has to check in a 2-dimensional search, apart from being slow
 by itself.
 
-In contrast, the Primal-dual interior point method has
+In contrast, the primal-dual interior point method has
 super-linear convergence and only deals with 2n parameters (n being
 sample size).
 
@@ -35,7 +35,9 @@ The second and third column contain indicators, where the first indicator equals
 if time of onset of the disease studied is less than or equal to C (a censoring time,
 corresponding to death from an unrelated cause) and zero otherwise, and the second
 indicator equals 1 if the time of death from the disease studied is less than or equal
-to C, and zero otherwise.
+to C, and zero otherwise. The program gives back the maximum likelihood estimates of the
+two distribution function. The are output$MLE1 and output$MLE2. The demonstration program
+also gives a drawing of these functions.
 
 See also: vander Laan, M.J. and Jewell, N.P (2003). Current status and right-censored
 data structures when observing a marker at the censoring time. Annals of
