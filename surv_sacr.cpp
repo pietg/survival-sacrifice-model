@@ -148,7 +148,7 @@ List Compute_estimates(DataFrame input)
     
     // the number of strictly different observations
     
-    printf("\nn = %5d\n\n",n);
+    // printf("\nn = %5d\n\n",n);
     
     // Do the interior point method
     
@@ -617,7 +617,7 @@ void 	InteriorPoint(int n, double xx[], double z[], int **freq)
         
         gradientInterior(n,freq,z,GtLabda,grad);
         
-        printf("%10d %25.15f %25.15f %25.15f\n",j,mu,norm,phinew);
+        //printf("%10d %25.15f %25.15f %25.15f\n",j,mu,norm,phinew);
     }
     
     for (i=1;i<=n;i++)
