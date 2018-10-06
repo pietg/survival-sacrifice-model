@@ -42,4 +42,4 @@ See also: vander Laan, M.J. and Jewell, N.P (2003). Current status and right-cen
 data structures when observing a marker at the censoring time. Annals of
 Statistics 31, 512–535, in particular pages 514-515.
 The picture of the survival functions can be compared with Figure 2 on p. 46 of the
-1984 paper of Turnbull and Mitchel (see above).
+1984 paper of Turnbull and Mitchell (see above).
