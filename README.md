@@ -22,8 +22,7 @@ of mass it has to check in a 2-dimensional search, apart from being slow
 by itself.
 
 In contrast, the primal-dual interior point method has
-super-linear convergence and only deals with 2n parameters (n being
-sample size).
+super-linear convergence and only deals with 2n parameters (n=sample size).
 
 The present method is demonstrated by the R file surv_sacr.R for the data 
 set of 109 mice in Table 1 of the above paper of Turnbull and Mitchell,

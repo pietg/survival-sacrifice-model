@@ -74,8 +74,8 @@ void	transfer(int n, double a[], double b[]);
 List Compute_estimates(DataFrame input)
 {
     int			ndata,m1,m2,**freq;
-	int 		i,j,k,n,n2,*delta1,*delta2;;
-	double		*xcoor,*mle,*xx;
+	int 		  i,j,n,n2,*delta1,*delta2,*index1,*index2;
+	double		*xcoor,*mle,*mle1,*mle2,*xx;
     
     DataFrame DF = Rcpp::DataFrame(input);
     NumericVector xcoor0 = DF["V1"];
@@ -146,7 +146,7 @@ List Compute_estimates(DataFrame input)
     
     sort_ties(ndata,delta1,delta2,xcoor,xx,freq,&n);
     
-    // the number of strictly different observations
+    // the number of strictly different observations, seen if following statement is not commented out
     
     // printf("\nn = %5d\n\n",n);
     
@@ -154,56 +154,87 @@ List Compute_estimates(DataFrame input)
     
     InteriorPoint(n,xx,mle,freq);
     
+    // create right-continuous functions on all points from the solution
+    
+    index1 = new int[n+1];
+    index2 = new int[n+1];
+    mle1 = new double[n+1];
+    mle2 = new double[n+1];
+    
+    
     j=0;
- 	
- 	for (i=1;i<=n;i++)
- 	{
-        if (freq[i][3]>0 || freq[2]>0)
+    
+    for (i=1;i<=n;i++)
+    {
+        if (freq[i][3]>0 || freq[i][2]>0)
+        {
             j++;
+            index1[j]=i;
+        }
     }
     
     m1=j;
-    k=0;
     
-    NumericMatrix out0 = NumericMatrix(m1,2);
+    for (j=0;j<index1[1];j++)
+        mle1[j]=0;
     
-    for (i=1;i<=n;i++)
+    for (i=1;i<m1;i++)
     {
-        if (freq[i][3]>0 || freq[2]>0)
-        {
-            out0(k,0)=xx[i];
-            out0(k,1)=mle[2*i-1];
-            k++;
-        }
+        for (j=index1[i];j<index1[i+1];j++)
+            mle1[j]=mle[2*index1[i]-1];
     }
-
+    
+    for (j=index1[m1];j<=n;j++)
+        mle1[j]=mle[2*index1[m1]-1];
     
     j=0;
     
     for (i=1;i<=n;i++)
     {
-        if (freq[i][1]>0 || freq[i][2]>0 )
-            j++;
-    }
-    
-    m2=j+1;
-    k=0;
-    
-    NumericMatrix out1 = NumericMatrix(m2,2);
-    
-    for (i=1;i<=n;i++)
-    {
-        if (freq[i][1]>0 || freq[i][2]>0 )
+        if (freq[i][1]>0 || freq[i][2]>0)
         {
-            out1(k,0)=xx[i];
-            out1(k,1)=mle[2*i];
-            k++;
+            j++;
+            index2[j]=i;
         }
     }
     
-    out1(k,0)=xx[n];
-    out1(k,1)=1;
-
+    m2=j;
+    
+    for (j=0;j<index2[1];j++)
+        mle2[j]=0;
+    
+    for (i=1;i<m2;i++)
+    {
+        for (j=index2[i];j<index2[i+1];j++)
+        {
+            mle2[j]=mle[2*index2[i]];
+            if (mle2[j]<mle1[j])
+                mle2[j]=mle1[j];
+        }
+    }
+    
+    for (j=index2[m2];j<=n;j++)
+    {
+        mle2[j]=mle[2*index2[m2]];
+        if (mle2[j]<mle1[j])
+            mle2[j]=mle1[j];
+    }
+    
+    NumericMatrix out0 = NumericMatrix(n,2);
+    
+    for (i=0;i<n;i++)
+    {
+        out0(i,0)=xx[i+1];
+        out0(i,1)=mle1[i+1];
+    }
+    
+    NumericMatrix out1 = NumericMatrix(n,2);
+    
+    for (i=0;i<n;i++)
+    {
+        out1(i,0)=xx[i+1];
+        out1(i,1)=mle2[i+1];
+    }
     
     // make the list for the output, containing the two estimates
     
@@ -212,6 +243,8 @@ List Compute_estimates(DataFrame input)
     // free memory
 
     delete[] delta1, delete[] delta2, delete[] xcoor, delete[] xx, delete[] mle;
+    
+    delete[] mle1, delete[] mle2, delete[] index1, delete[] index2;
     
     for (i=0;i<n2+1;i++)
         delete[] L[i];
@@ -570,8 +603,6 @@ void 	InteriorPoint(int n, double xx[], double z[], int **freq)
     // Computes expression on the right of first equation in (7.21), called A
     
     Compute_delta_z(n,n2,Hessian,A,delta_z);
-    
-    //Cholesky_sol(n,Hessian,A,delta_z,D,L);
     
     Compute_G_delta_z(n,n2,delta_z,G_delta_z);
     
