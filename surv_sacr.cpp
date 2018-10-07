@@ -191,7 +191,7 @@ List Compute_estimates(DataFrame input)
     
     for (i=1;i<=n;i++)
     {
-        if (freq[i][1]>0 || freq[i][2]>0)
+        if (freq[i][2]>0)
         {
             j++;
             index2[j]=i;
