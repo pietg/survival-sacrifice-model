@@ -31,15 +31,24 @@ which is the data file RFM109.txt in the directory.
 The program expects a data file with three columns of the same type as RFM109.txt.
 The first column contains the observations on the times (ties allowed).
 The second and third column contain indicators, where the first indicator equals 1
-if time of onset of the disease studied is less than or equal to C (a censoring time,
-corresponding to death from an unrelated cause) and zero otherwise, and the second
-indicator equals 1 if the time of death from the disease studied is less than or equal
-to C, and zero otherwise. The program gives back the maximum likelihood estimates of the
-two distribution function. The are output$MLE1 and output$MLE2. The demonstration program
-also gives a drawing of these functions.
+if time of onset of the disease studied is less than or equal to Y (an observation time)
+and zero otherwise, and the second indicator equals 1 if the time of death from the
+disease studied is less than or equal to Y, and zero otherwise. The program gives back
+the maximum likelihood estimates of the two distribution functions. They are output1$MLE1
+and output$MLE2. The demonstration program also gives a drawing of these functions.
+The code for running the computation is in primal_dual.cpp.
 
 See also: vander Laan, M.J. and Jewell, N.P (2003). Current status and right-censored
 data structures when observing a marker at the censoring time. Annals of
 Statistics 31, 512–535, in particular pages 514-515.
 The picture of the survival functions can be compared with Figure 2 on p. 46 of the
 1984 paper of Turnbull and Mitchell (see above).
+
+For comparison, the EM algorihm and its result on the same data is shown. The results
+of the two methods are exactly the same for the points where the values are uniquely
+determined by the likelihood function, but slightly different between these points,
+as can be seen from the plot. The code for the EM algorithm is in EM.cpp. A counter
+of the 10,000 iterations of EM is shown for "keeping faith".
+The log likelihoods of the results of the two methods are seen by typing
+output1$loglikelihood and output2$loglikelihood. Note that they are the same in the
+decimals shown and also equal to the log likelihood reported in Turnbull and Mitchell (1984).

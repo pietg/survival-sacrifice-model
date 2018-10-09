@@ -1,3 +1,4 @@
+
 //
 //  The primal-dual interior point algorithm for the survival-sacrifice model
 //
@@ -71,7 +72,7 @@ void	transfer(int n, double a[], double b[]);
 
 // [[Rcpp::export]]
 
-List Compute_estimates(DataFrame input)
+List primal_dual(DataFrame input)
 {
     int			ndata,m1,m2,**freq;
 	int 		  i,j,n,n2,*delta1,*delta2,*index1,*index2;
@@ -236,9 +237,11 @@ List Compute_estimates(DataFrame input)
         out1(i,1)=mle2[i+1];
     }
     
+    double out2 = -phiInterior(n,n2,freq,mle);
+    
     // make the list for the output, containing the two estimates
     
-    List out = List::create(Rcpp::Named("MLE1")=out0,Rcpp::Named("MLE2")=out1);
+    List out = List::create(Rcpp::Named("MLE1")=out0,Rcpp::Named("MLE2")=out1,Rcpp::Named("loglikelihood")=out2);
 
     // free memory
 
