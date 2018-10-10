@@ -24,7 +24,6 @@ typedef struct
     double x;
     int delta1;
     int delta2;
-    double v;
 }
 data;
 
