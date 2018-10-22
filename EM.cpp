@@ -27,7 +27,7 @@ typedef struct
 }
 data;
 
-void EM(int ndata, int n, int n_mass, double vv[], int **freq, double F2[], double F1[], double f[], double *p, double **uu);
+void EM(int ndata, int n, int n_mass, double vv[], int **freq, double F1[], double F2[], double f[], double *p, double **uu);
 void sort_ties(int n, int delta1[], int delta2[], double xx[],
                double xx_new[], int **freq, int *n_new);
 int CompareTime(const void *a, const void *b);
@@ -177,7 +177,7 @@ List EM(DataFrame input)
     
     for (iter=0;iter<NumIt;iter++)
     {
-        EM(ndata,n,n_mass,xx,freq,F2,F1,f,p,uu);
+        EM(ndata,n,n_mass,xx,freq,F1,F2,f,p,uu);
         
         Rcout  << setw(10) << iter+1 << std::endl;
         //printf("%5d\n",iter+1);
@@ -231,7 +231,7 @@ List EM(DataFrame input)
     
 }
 
-void EM(int ndata, int n, int n_mass, double vv[], int **freq, double F2[], double F1[], double f[], double *p, double **uu)
+void EM(int ndata, int n, int n_mass, double vv[], int **freq, double F1[], double F2[], double f[], double *p, double **uu)
 {
     int i,j;
     double sum1,sum2,sum3,sum;
@@ -282,8 +282,6 @@ void sort_ties(int n, int delta1[], int delta2[], double xx[],
         for (j=1;j<=3;j++)
             freq[i][j]=0;
     
-    j=0;
-    
     if (delta1[0]==0 && delta2[0]==0)
         freq[0][1]++;
     else
@@ -295,6 +293,8 @@ void sort_ties(int n, int delta1[], int delta2[], double xx[],
     }
     
     xx_new[0]=xx[0];
+    
+    j=0;
     
     for (i=1;i<n;i++)
     {

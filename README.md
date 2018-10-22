@@ -9,7 +9,7 @@ distribution functions in the so-called survival-sacrifice model.
 The method is described in the manuscript:  Antonio E. Gomes, Piet Groeneboom
 and Jon A. Wellner. Nonparametric estimation of the lifetime and
 disease onset distributions for a survival-sacrifice model:
-https://www.stat.washington.edu/jaw/RESEARCH/PAPERS/survsacr.pdf, 2001.
+http://dutiosb.twi.tudelft.nl/%7Epietg/survsac-v2.pdf (2018)
 
 This is presently the most efficient method known for computing the real
 maximum likelihood estimator. The obvious alternative, the EM algorithm,
