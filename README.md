@@ -3,8 +3,8 @@
 Primal-dual interior point method for estimation in the
 survival-sacrifice model.
 
-We give an Rcpp script for computing the real MLE for the two
-distribution functions in the so-called survival-sacrifice model.
+We give an R script for computing the real MLE for the two
+distribution functions in the so-called survival-sacrifice model by the primal-dual interior point method. It can be run from surv_sacr.R and uses the R package Rcpp.
 
 The method is described in the manuscript:  Antonio E. Gomes, Piet Groeneboom
 and Jon A. Wellner. Nonparametric estimation of the lifetime and
