@@ -173,8 +173,6 @@ plot(c(-1000,-1000),xlim=c(min(x,x1),max(x,x1)),ylim=c(0,1), main= "",ylab="",xl
 #
 	lines(x,y,lwd=2,col="blue",type='s')#
 	lines(x1,y1,lwd=2,col="red",type='s')
-lines(t,u,lwd=2, lty=1,type='s')#
-	lines(t1,u1,lwd=2, lty=1,type='s')
 output1
 output1$loglikelihood
 output2$loglikelihood
@@ -290,3 +288,5 @@ plot(c(-1000,-1000),xlim=c(min(x,x1),max(x,x1)),ylim=c(0,1), main= "",ylab="",xl
 #
 	lines(x,y,lwd=2,col="blue",type='s')#
 	lines(x1,y1,lwd=2,col="red",type='s')
+lines(t,u,lwd=2, lty=1,type='s')#
+	lines(t1,u1,lwd=2, lty=1,type='s')

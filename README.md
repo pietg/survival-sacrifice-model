@@ -35,8 +35,10 @@ if time of onset of the disease studied is less than or equal to Y (an observati
 and zero otherwise, and the second indicator equals 1 if the time of death from the
 disease studied is less than or equal to Y, and zero otherwise. The program gives back
 the maximum likelihood estimates of the two distribution functions. They are output1$MLE1
-and output$MLE2. The demonstration program also gives a drawing of these functions.
-The code for running the computation is in primal_dual.cpp.
+and output1$MLE2 for the primal-dual algorithm and output2$MLE1
+and output2$MLE2 for the EM algorithm. The demonstration program also gives a drawing of
+these functions.
+The codes for running the computation is in primal_dual.cpp and EM.cpp.
 
 See also: vander Laan, M.J. and Jewell, N.P (2003). Current status and right-censored
 data structures when observing a marker at the censoring time. Annals of
