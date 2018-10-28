@@ -38,7 +38,7 @@ the maximum likelihood estimates of the two distribution functions. They are out
 and output1$MLE2 for the primal-dual algorithm and output2$MLE1
 and output2$MLE2 for the EM algorithm. The demonstration program also gives a drawing of
 these functions.
-The codes for running the computation is in primal_dual.cpp and EM.cpp.
+The codes for running the computation are in primal_dual.cpp and EM.cpp.
 
 See also: vander Laan, M.J. and Jewell, N.P (2003). Current status and right-censored
 data structures when observing a marker at the censoring time. Annals of
@@ -49,8 +49,7 @@ The picture of the survival functions can be compared with Figure 2 on p. 46 of 
 For comparison, the EM algorihm and its result on the same data is shown. The results
 of the two methods are exactly the same for the points where the values are uniquely
 determined by the likelihood function, but slightly different between these points,
-as can be seen from the plot. The code for the EM algorithm is in EM.cpp. A counter
-of the 10,000 iterations of EM is shown for "keeping faith".
+as can be seen from the plot. A counter of the 10,000 iterations of EM is shown for "keeping faith".
 The log likelihoods of the results of the two methods are seen by typing
 output1$loglikelihood and output2$loglikelihood. Note that they are the same in the
 decimals shown and also equal to the log likelihood reported in Turnbull and Mitchell (1984).
