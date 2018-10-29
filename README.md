@@ -53,3 +53,5 @@ as can be seen from the plot. A counter of the 10,000 iterations of EM is shown 
 The log likelihoods of the results of the two methods are seen by typing
 output1$loglikelihood and output2$loglikelihood. Note that they are the same in the
 decimals shown and also equal to the log likelihood reported in Turnbull and Mitchell (1984).
+
+The R script simulation.R gives a simulation for 1000 samples of size 1000 for the model of Example 1 of the manuscript http://dutiosb.twi.tudelft.nl/%7Epietg/survsac-v2.pdf (2018) of Gomes, Groeneboom and Wellner, which is also studied by van der Laan, Jewell and Peterson (1979), Efficient estimation of the lifetime and disease onset distribution, Biometrika, 84, 539-554. The simulation script gives an example of the computations of Table 3, p. 26, of Gomes, Groeneboom and Wellner (2018).

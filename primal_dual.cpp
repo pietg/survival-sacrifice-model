@@ -76,7 +76,7 @@ List primal_dual(DataFrame input)
 {
     int			ndata,m1,m2,**freq;
 	int 		  i,j,n,n2,*delta1,*delta2,*index1,*index2;
-	double		*xcoor,*mle,*mle1,*mle2,*xx;
+	double		*xcoor,*mle,*mle1,*mle2,*xx,mean1,mean2;
     
     DataFrame DF = Rcpp::DataFrame(input);
     NumericVector xcoor0 = DF["V1"];
@@ -177,16 +177,16 @@ List primal_dual(DataFrame input)
     m1=j;
     
     for (j=0;j<index1[1];j++)
-        mle1[j]=0;
+        mle2[j]=0;
     
     for (i=1;i<m1;i++)
     {
         for (j=index1[i];j<index1[i+1];j++)
-            mle1[j]=mle[2*index1[i]-1];
+            mle2[j]=mle[2*index1[i]-1];
     }
     
     for (j=index1[m1];j<=n;j++)
-        mle1[j]=mle[2*index1[m1]-1];
+        mle2[j]=mle[2*index1[m1]-1];
     
     j=0;
     
@@ -202,24 +202,35 @@ List primal_dual(DataFrame input)
     m2=j;
     
     for (j=0;j<index2[1];j++)
-        mle2[j]=0;
+        mle1[j]=0;
     
     for (i=1;i<m2;i++)
     {
         for (j=index2[i];j<index2[i+1];j++)
         {
-            mle2[j]=mle[2*index2[i]];
-            if (mle2[j]<mle1[j])
-                mle2[j]=mle1[j];
+            mle1[j]=mle[2*index2[i]];
+            if (mle1[j]<mle2[j])
+                mle1[j]=mle2[j];
         }
     }
     
     for (j=index2[m2];j<=n;j++)
     {
-        mle2[j]=mle[2*index2[m2]];
-        if (mle2[j]<mle1[j])
-            mle2[j]=mle1[j];
+        mle1[j]=mle[2*index2[m2]];
+        if (mle1[j]<mle2[j])
+            mle1[j]=mle2[j];
     }
+    
+    mean1=mean2=0;
+    
+    for (i=1;i<=n;i++)
+    {
+        mean1 += xx[i]*(mle1[i]-mle1[i-1]);
+        mean2 += xx[i]*(mle2[i]-mle2[i-1]);
+    }
+
+    
+    
     
     NumericMatrix out0 = NumericMatrix(n,2);
     
@@ -239,9 +250,14 @@ List primal_dual(DataFrame input)
     
     double out2 = -phiInterior(n,n2,freq,mle);
     
+    NumericVector out3 = NumericVector(2);
+    
+    out3(0)=mean1;
+    out3(1)=mean2;
+    
     // make the list for the output, containing the two estimates
     
-    List out = List::create(Rcpp::Named("MLE1")=out0,Rcpp::Named("MLE2")=out1,Rcpp::Named("loglikelihood")=out2);
+    List out = List::create(Rcpp::Named("MLE1")=out0,Rcpp::Named("MLE2")=out1,Rcpp::Named("loglikelihood")=out2,Rcpp::Named("mean")=out3);
 
     // free memory
 

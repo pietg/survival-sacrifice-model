@@ -43,9 +43,9 @@ List EM(DataFrame input)
     int             n_mass,n,i,j,k,iter,NumIt,m2,m3,m,*delta1,*delta2;
     int             ndata,**freq;
     double          sum,*xcoor,*xx,*F2,*F1,*f,*p;
-    double          *v,*w,**uu;
+    double          *v,*w,**uu,mean1,mean2;
     
-    NumIt=10000;
+    NumIt=100;
     
     DataFrame DF = Rcpp::DataFrame(input);
     NumericVector xcoor0 = DF["V1"];
@@ -83,7 +83,7 @@ List EM(DataFrame input)
     
     // the number of strictly different observations
     
-    printf("\nn = %5d\n\n",n);
+    //printf("\nn = %5d\n\n",n);
     
     v = new double[n];
     w = new double[n];
@@ -179,9 +179,18 @@ List EM(DataFrame input)
     {
         EM(ndata,n,n_mass,xx,freq,F1,F2,f,p,uu);
         
-        Rcout  << setw(10) << iter+1 << std::endl;
+        //Rcout  << setw(10) << iter+1 << std::endl;
         //printf("%5d\n",iter+1);
     }
+    
+    mean1=mean2=0;
+    
+    for (i=1;i<=n;i++)
+    {
+        mean1 += xx[i]*(F1[i]-F1[i-1]);
+        mean2 += xx[i]*(F2[i]-F2[i-1]);
+    }
+
     
     sum=0;
     
@@ -213,9 +222,14 @@ List EM(DataFrame input)
         out1(i,1)=F2[i];
     }
     
+    NumericVector out3 = NumericVector(2);
+    
+    out3(0)=mean1;
+    out3(1)=mean2;
+    
     // make the list for the output, containing the two estimates and the log likelihood
     
-    List EM_out = List::create(Rcpp::Named("MLE1")=out0,Rcpp::Named("MLE2")=out1,Rcpp::Named("loglikelihood")=out2);
+    List EM_out = List::create(Rcpp::Named("MLE1")=out0,Rcpp::Named("MLE2")=out1,Rcpp::Named("loglikelihood")=out2,Rcpp::Named("mean")=out3);
 
     // free memory
 
