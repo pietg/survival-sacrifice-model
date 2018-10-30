@@ -45,7 +45,7 @@ List EM(DataFrame input)
     double          sum,*xcoor,*xx,*F2,*F1,*f,*p;
     double          *v,*w,**uu,mean1,mean2;
     
-    NumIt=100;
+    NumIt=10000;
     
     DataFrame DF = Rcpp::DataFrame(input);
     NumericVector xcoor0 = DF["V1"];
