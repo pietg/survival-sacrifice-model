@@ -179,7 +179,7 @@ List EM(DataFrame input)
     {
         EM(ndata,n,n_mass,xx,freq,F1,F2,f,p,uu);
         
-        //Rcout  << setw(10) << iter+1 << std::endl;
+        Rcout  << setw(10) << iter+1 << std::endl;
         //printf("%5d\n",iter+1);
     }
     

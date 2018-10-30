@@ -1,17 +1,14 @@
 # survival-sacrifice-model
 
-Primal-dual interior point method for estimation in the
-survival-sacrifice model.
-
 We give an R script for computing the real MLE for the two
-distribution functions in the so-called survival-sacrifice model by the primal-dual interior point method. It can be run from surv_sacr.R and uses the R package Rcpp.
+distribution functions in the so-called survival-sacrifice model by the primal-dual interior point method and the EM algorithm. It can be run for the data file MLE_RFM109.txt from the R script MLE_RFM109.R and uses the R package Rcpp.
 
-The method is described in the manuscript:  Antonio E. Gomes, Piet Groeneboom
+The primal-dual interior point method is described in the manuscript:  Antonio E. Gomes, Piet Groeneboom
 and Jon A. Wellner. Nonparametric estimation of the lifetime and
 disease onset distributions for a survival-sacrifice model:
 http://dutiosb.twi.tudelft.nl/%7Epietg/survsac-v2.pdf (2018)
 
-This is presently the most efficient method known for computing the real
+The primal-dual interior point method is presently the most efficient method known for computing the real
 maximum likelihood estimator. The obvious alternative, the EM algorithm,
 as already described in Bruce W. Turnbull and Toby J. Mitchell,
 Nonparametric estimation of the distribution of time to onset for
