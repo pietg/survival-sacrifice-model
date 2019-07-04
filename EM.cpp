@@ -27,11 +27,14 @@ typedef struct
 }
 data;
 
-void EM(int ndata, int n, int n_mass, double vv[], int **freq, double F1[], double F2[], double f[], double *p, double **uu);
+double lambda1,lambda2;
+
+void EM_alg(int ndata, int n, int n_mass, double vv[], int **freq, double F1[], double F2[], double f[], double *p, double **uu);
 void sort_ties(int n, int delta1[], int delta2[], double xx[],
                double xx_new[], int **freq, int *n_new);
 int CompareTime(const void *a, const void *b);
 void sort_data(int n, double xx[], int delta1[], int delta2[]);
+int  fenchelviol(int ndata, int n, int **freq, double F1[], double F2[], double f[], double tol, double *partsum, double *inprod);
 
 
 
@@ -40,12 +43,10 @@ void sort_data(int n, double xx[], int delta1[], int delta2[]);
 
 List EM(DataFrame input)
 {
-    int             n_mass,n,i,j,k,iter,NumIt,m2,m3,m,*delta1,*delta2;
+    int             n_mass,n,i,j,k,m2,m3,m,*delta1,*delta2;
     int             ndata,**freq;
-    double          sum,*xcoor,*xx,*F2,*F1,*f,*p;
-    double          *v,*w,**uu,mean1,mean2;
-    
-    NumIt=10000;
+    double          sum,*xcoor,*xx,*F2,*F1,*F1_new,*F2_new,*f,*p;
+    double          *v,*w,**uu,mean1,mean2,*sum1,*sum2,*sum3;
     
     DataFrame DF = Rcpp::DataFrame(input);
     NumericVector xcoor0 = DF["V1"];
@@ -88,9 +89,15 @@ List EM(DataFrame input)
     v = new double[n];
     w = new double[n];
     
-    F2   = new double[n];
-    F1 = new double[n];
-    f = new double[n];
+    F1      = new double[n+1];
+    F2      = new double[n+1];
+    F1_new  = new double[n+1];
+    F2_new  = new double[n+1];
+    f       = new double[n+1];
+    
+    sum1   = new double[n+1];
+    sum2 = new double[n+1];
+    sum3 = new double[n+1];
     
     j=0;
     
@@ -175,33 +182,59 @@ List EM(DataFrame input)
     for (i=0;i<n_mass;i++)
         p[i]=1.0/n_mass;
     
-    for (iter=0;iter<NumIt;iter++)
+    sum1   = new double[n];
+    sum2 = new double[n];
+    sum3 = new double[n];
+    
+    for (i=0;i<n;i++)
     {
-        EM(ndata,n,n_mass,xx,freq,F1,F2,f,p,uu);
+        sum1[i]=sum2[i]=sum3[i]=0;
+        for (j=0;j<n_mass;j++)
+        {
+            if (uu[j][0]>xx[i] && uu[j][1]>xx[i])
+                sum1[i] += p[j];
+            if (uu[j][0]>xx[i] && uu[j][1]<=xx[i])
+                sum2[i] += p[j];
+            if (uu[j][0]==xx[i])
+                sum3[i] += p[j];
+            
+        }
         
-        Rcout  << setw(10) << iter+1 << std::endl;
-        //printf("%5d\n",iter+1);
+        F1[i+1]=1-sum1[i];
+        F2[i+1]=F1[i]-sum2[i];
+        f[i+1]=sum3[i];
     }
     
-    mean1=mean2=0;
+    F1[0]=F2[0]=0;
     
-    for (i=1;i<=n;i++)
+    EM_alg(ndata,n,n_mass,xx,freq,F1,F2,f,p,uu);
+    
+    for (i=0;i<n;i++)
     {
-        mean1 += xx[i]*(F1[i]-F1[i-1]);
-        mean2 += xx[i]*(F2[i]-F2[i-1]);
+        F1[i]=F1[i+1];
+        F2[i]=F2[i+1];
+        f[i]=f[i+1];
     }
-
     
+    mean1 = (1-F1[0])*xx[0];
+    mean2 = (1-F2[0])*xx[0];
+    
+    for (i=1;i<n;i++)
+    {
+        mean1 += (xx[i]-xx[i-1])*(1-F1[i]);
+        mean2 += (xx[i]-xx[i-1])*(1-F2[i]);
+    }
+        
     sum=0;
     
     for (i=0;i<n;i++)
     {
         if (freq[i][1]>0)
-            sum += freq[i][1]*log(1-F2[i]);
+            sum += freq[i][1]*log(1-F1[i]);
         if (freq[i][2]>0)
-            sum += freq[i][2]*log(F2[i]-F1[i]);
-        if (freq[i][3]>0)
-            sum += freq[i][3]*log(f[i]);
+            sum += freq[i][2]*log(F1[i]-F2[i]);
+        if (freq[i][3]>0 && i>0)
+            sum += freq[i][3]*log(F2[i]-F2[i-1]);
     }
     
     double out2 = sum;
@@ -232,10 +265,12 @@ List EM(DataFrame input)
     List EM_out = List::create(Rcpp::Named("MLE1")=out0,Rcpp::Named("MLE2")=out1,Rcpp::Named("loglikelihood")=out2,Rcpp::Named("mean")=out3);
 
     // free memory
-
-    delete[] delta1, delete[] delta2, delete[] xcoor, delete[] xx;
     
-    delete[] F1, delete[] F2, delete[] f, delete[] v, delete[] w;
+    delete[] sum1; delete[] sum2; delete[] sum3;
+
+    delete[] delta1; delete[] delta2; delete[] xcoor; delete[] xx;
+    
+    delete[] F1; delete[] F2; delete[] F1_new; delete[] F2_new; delete[] f; delete[] v; delete[] w;
     
     for (i=0;i<ndata;i++)
         delete[] freq[i];
@@ -245,46 +280,153 @@ List EM(DataFrame input)
     
 }
 
-void EM(int ndata, int n, int n_mass, double vv[], int **freq, double F1[], double F2[], double f[], double *p, double **uu)
+void EM_alg(int ndata, int n, int n_mass, double vv[], int **freq, double F1[], double F2[],
+            double f[], double *p, double **uu)
 {
-    int i,j;
-    double sum1,sum2,sum3,sum;
+    int i,j,iteration,n_It=10000;
+    double sum1,sum2,sum3,sum,partialsum,inprod,tol=1.0e-10;
+    
+    iteration=0;
+    partialsum=inprod=1;
+    lambda1=lambda2=0;
     
     for (i=0;i<n;i++)
     {
+      F1[i]=(i+1)*1.0/(n+1);
+      F2[i]=0.9*(i+1)*1.0/(n+5);
+      f[i]=0.9*1.0/(n+5);
+    }
+    
+    //printf("iteration   partial sum     inprod\n\n");
+    
+    while (iteration<=n_It && fenchelviol(ndata,n,freq,F1,F2,f,tol,&partialsum,&inprod))
+    {
+      iteration++;
+      
+      for (i=0;i<n;i++)
+      {
         sum1=sum2=sum3=0;
         for (j=0;j<n_mass;j++)
         {
-            if (uu[j][0]>vv[i] && uu[j][1]>vv[i])
-                sum1 += p[j];
-            if (uu[j][0]>vv[i] && uu[j][1]<=vv[i])
-                sum2 += p[j];
-            if (uu[j][0]==vv[i])
-                sum3 += p[j];
-            
+          if (uu[j][0]>vv[i] && uu[j][1]>vv[i])
+            sum1 += p[j];
+          if (uu[j][0]>vv[i] && uu[j][1]<=vv[i])
+            sum2 += p[j];
+          if (uu[j][0]==vv[i])
+            sum3 += p[j];
+          
         }
         
-        F2[i]=1-sum1;
-        F1[i]=F2[i]-sum2;
+        F1[i]=1-sum1;
+        F2[i]=F1[i]-sum2;
         f[i]=sum3;
-    }
-    
-    for (j=0;j<n_mass;j++)
-    {
+      }
+      
+      for (j=0;j<n_mass;j++)
+      {
         sum=0;
         for (i=0;i<n;i++)
         {
-            if (uu[j][0]>vv[i] && uu[j][1]>vv[i] && F2[i]<1 && freq[i][1]>0)
-                sum += freq[i][1]/(1-F2[i]);
-            if (uu[j][0]>vv[i] && uu[j][1]<=vv[i] && F2[i]>F1[i] && freq[i][2]>0)
-                sum += freq[i][2]/(F2[i]-F1[i]);
-            if (uu[j][0]==vv[i] && f[i]>0 && freq[i][3]>0)
-                sum += freq[i][3]/f[i];
+          if (uu[j][0]>vv[i] && uu[j][1]>vv[i] && F1[i]<1 && freq[i][1]>0)
+            sum += freq[i][1]/(1-F1[i]);
+          if (uu[j][0]>vv[i] && uu[j][1]<=vv[i] && F1[i]>F2[i] && freq[i][2]>0)
+            sum += freq[i][2]/(F1[i]-F2[i]);
+          if (uu[j][0]==vv[i] && f[i]>0 && freq[i][3]>0)
+            sum += freq[i][3]/f[i];
         }
         
         p[j]=p[j]*sum/ndata;
+      }
+      
+      lambda1=lambda2=0;
+      
+      for (i=n-1;i>=0;i--)
+      {
+        if (freq[i][2]>0 && fabs(F1[i]-1)<1.0e-8)
+          lambda1 += freq[i][2]/(ndata*(1-F2[i]));
+        if (freq[i][3]>0 && fabs(F2[i]-1)<1.0e-8)
+          lambda2 += freq[i][3]/(ndata*(1-F2[i-1]));
+      }
     }
+    
+    //printf("iteration= %5d\n",iteration);
 }
+
+int  fenchelviol(int ndata, int n, int **freq, double F1[], double F2[],
+                 double f[], double tol, double *partsum, double *inprod)
+{
+    double    sum,sum1,sum2,sum3;
+    int    i,k;
+    int    fenchelvioltemp=0;
+    
+    sum1=sum2=sum3=0;
+    
+    sum=lambda1;
+    
+    for (i=n-1;i>=0;i--)
+    {
+        if (freq[i][1]>0)
+            sum += freq[i][1]/(ndata*(1-F1[i]));
+        if (freq[i][2]>0)
+            sum -= freq[i][2]/(ndata*(F1[i]-F2[i]));
+        if (sum<sum1)
+            sum1=sum;
+    }
+    
+    sum = lambda1+lambda2;
+    
+    for (i=n-1;i>=0;i--)
+    {
+        if (freq[i][1]>0)
+            sum += freq[i][1]/(ndata*(1-F1[i]));
+        if (freq[i][2]>0)
+            sum -= freq[i][2]/(ndata*(F1[i]-F2[i]));
+        
+        sum3=0;
+        for (k=n-1;k>=i;k--)
+        {
+            if (freq[k][2]>0)
+                sum3 += freq[k][2]/(ndata*(F1[k]-F2[k]));
+            
+            if (freq[k][3]>0)
+                sum2 = sum3-freq[k][3]/(ndata*f[k]);
+            else
+                sum2=sum3;
+            
+            if (sum+sum2<sum1)
+                sum1=sum+sum2;
+        }
+    }
+    
+    sum = lambda1+lambda2;
+    
+    for (i=0;i<n;i++)
+    {
+        if (freq[i][1]>0)
+            sum += freq[i][1]*F1[i]/(ndata*(1-F1[i]));
+        if (freq[i][2]>0)
+            sum -= freq[i][2]*F1[i]/(ndata*(F1[i]-F2[i]));
+        
+        if (freq[i][2]>0)
+            sum += freq[i][2]*F2[i]/(ndata*(F1[i]-F2[i]));
+        
+        if (freq[i][3]>0)
+            sum -= freq[i][3]*F2[i]/(ndata*f[i]);
+        
+        if (i<n-1 && freq[i+1][3]>0)
+            sum += freq[i+1][3]*F2[i]/(ndata*f[i+1]);
+    }
+    
+    sum=fabs(sum);
+    
+    *inprod = sum;
+    *partsum = sum1;
+    
+    if (sum > tol || sum1 < -tol ) fenchelvioltemp = 1;
+    
+    return fenchelvioltemp;
+}
+
 
 
 void sort_ties(int n, int delta1[], int delta2[], double xx[],

@@ -24,11 +24,11 @@
 	u1<-C2[,2]	
 plot(c(-1000,-1000),xlim=c(min(x,x1),max(x,x1)),ylim=c(0,1), main= "",ylab="",xlab="",bty="n",las=1)
 
-	lines(x,y,lwd=2,col="blue",type='s')
-	lines(x1,y1,lwd=2,col="red",type='s')
+	lines(x,y,lwd=2,col="red",type='s')
+	lines(x1,y1,lwd=2,col="blue",type='s')
 	
-	lines(t,u,lwd=2, lty=1,type='s')
-	lines(t1,u1,lwd=2, lty=1,type='s')
+	#lines(t,u,lwd=2, lty=1,col="red",type='s')
+	#lines(t1,u1,lwd=2, lty=1,col="blue",type='s')
  
 
 
