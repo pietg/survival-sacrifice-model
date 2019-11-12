@@ -661,13 +661,13 @@ void 	InteriorPoint(int n, double xx[], double z[], int **freq)
         
         Compute_gradient(n,freq,z,grad);
         
+        gradientInterior(n,freq,z,GtLabda,grad);
+        
         sum=0;
         for (i=1;i<=n2;i++)
             sum=sum+z[i]*grad[i];
         
-        gradientInterior(n,freq,z,GtLabda,grad);
-        
-        //printf("%10d %25.15f %25.15f %25.15f\n",j,mu,norm,phinew);
+        //printf("%10d %25.15f %25.15f %25.15f %25.15f\n",j,mu,norm,sum,phinew);
     }
     
     for (i=1;i<=n;i++)
